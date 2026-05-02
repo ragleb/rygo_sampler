@@ -99,6 +99,7 @@ jobs:
 
     - name: Clone AudioUnitSDK
       run: git clone --depth 1 https://github.com/apple/AudioUnitSDK.git AudioUnitSDK
+      if: false  # AU build disabled on CI (use local build for Logic/AU)
 
     - name: Copy plugin into SDK
       run: |
@@ -114,16 +115,11 @@ jobs:
           -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=ON \
           -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=OFF \
           -DSMTG_ENABLE_VSTGUI_SUPPORT=ON \
-          -DSMTG_ENABLE_AUV2_BUILDS=ON \
-          -DSMTG_COREAUDIO_SDK_PATH="$PWD/AudioUnitSDK" \
+          -DSMTG_ENABLE_AUV2_BUILDS=OFF \
           -DCMAKE_BUILD_TYPE=Release
 
     - name: Build VST3
       run: cmake --build build --config Release --target rygo_sampler -j4
-
-    - name: Build AU
-      run: cmake --build build --config Release --target rygo_sampler_au -j4
-      continue-on-error: true
 
     - name: Stage Mac release
       run: |
