@@ -51,9 +51,16 @@ jobs:
     - name: Build
       run: cmake --build build --config Release --target rygo_sampler -j4
 
+    - name: Stage release folder
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path release | Out-Null
+        Copy-Item -Recurse "build/VST3/Release/rygo_sampler.vst3" "release/"
+        Copy-Item "rygo_plugin/install_windows.bat" "release/install.bat"
+
     - name: Upload VST3 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: rygo_sampler_windows_vst3
-        path: build/VST3/Release/rygo_sampler.vst3/
+        name: rygo_sampler_windows
+        path: release/
         retention-days: 30
