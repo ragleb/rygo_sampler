@@ -11,6 +11,8 @@ jobs:
   build-windows:
     name: Windows VST3
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout plugin
@@ -19,15 +21,11 @@ jobs:
         path: rygo_plugin
 
     - name: Clone VST3 SDK
-      run: |
-        git clone --depth 1 --branch v3.8.0_build_66 ^
-          https://github.com/steinbergmedia/vst3sdk.git vst3sdk
-      shell: cmd
+      run: git clone --depth 1 --branch v3.8.0_build_66 https://github.com/steinbergmedia/vst3sdk.git vst3sdk
 
     - name: Init VST3 SDK submodules
       working-directory: vst3sdk
-      run: |
-        git submodule update --init --depth 1 base cmake pluginterfaces public.sdk vstgui4
+      run: git submodule update --init --depth 1 base cmake pluginterfaces public.sdk vstgui4
 
     - name: Copy plugin into SDK
       shell: pwsh
@@ -46,10 +44,9 @@ jobs:
         -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=OFF
         -DSMTG_ENABLE_VSTGUI_SUPPORT=ON
         -DSMTG_ENABLE_AUV2_BUILDS=OFF
-        -DSMTG_RUN_VST_VALIDATOR=OFF
 
     - name: Build
-      run: cmake --build build --config Release --target rygo_sampler -j4
+      run: cmake --build build --config Release --target rygo_sampler -j4 -- /verbosity:minimal
 
     - name: Stage release folder
       shell: pwsh
@@ -60,6 +57,7 @@ jobs:
         if (Test-Path "rygo_plugin/Samples") {
             Copy-Item -Recurse "rygo_plugin/Samples" "release/Samples"
         }
+        Compress-Archive -Path "release/*" -DestinationPath "rygo_sampler_windows.zip"
 
     - name: Upload VST3 artifact
       uses: actions/upload-artifact@v4
@@ -67,3 +65,13 @@ jobs:
         name: rygo_sampler_windows
         path: release/
         retention-days: 30
+
+    - name: Create or update Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: "Rygo Sampler — Latest Build"
+        body: "Windows VST3 installer. Unzip → run install.bat as administrator."
+        prerelease: false
+        files: rygo_sampler_windows.zip
