@@ -72,6 +72,90 @@ jobs:
       with:
         tag_name: latest
         name: "Rygo Sampler — Latest Build"
-        body: "Windows VST3 installer. Unzip → run install.bat as administrator."
+        body: |
+          **Windows:** распакуй zip → двойной клик `install.bat` → перезапусти DAW  
+          **Mac:** распакуй zip → двойной клик `install_mac.command` → перезапусти DAW
         prerelease: false
         files: rygo_sampler_windows.zip
+
+  build-macos:
+    name: macOS VST3 + AU
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout plugin
+      uses: actions/checkout@v4
+      with:
+        path: rygo_plugin
+
+    - name: Clone VST3 SDK
+      run: git clone --depth 1 --branch v3.8.0_build_66 https://github.com/steinbergmedia/vst3sdk.git vst3sdk
+
+    - name: Init VST3 SDK submodules
+      working-directory: vst3sdk
+      run: git submodule update --init --depth 1 base cmake pluginterfaces public.sdk vstgui4
+
+    - name: Clone AudioUnitSDK
+      run: git clone --depth 1 https://github.com/apple/AudioUnitSDK.git AudioUnitSDK
+
+    - name: Copy plugin into SDK
+      run: |
+        dest="vst3sdk/public.sdk/samples/vst/rygosampler"
+        mkdir -p "$dest"
+        cp -r rygo_plugin/source "$dest/"
+        cp -r rygo_plugin/resource "$dest/"
+        cp rygo_plugin/CMakeLists.txt "$dest/"
+
+    - name: Configure
+      run: |
+        cmake -B build vst3sdk \
+          -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=ON \
+          -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=OFF \
+          -DSMTG_ENABLE_VSTGUI_SUPPORT=ON \
+          -DSMTG_ENABLE_AUV2_BUILDS=ON \
+          -DSMTG_COREAUDIO_SDK_PATH="$PWD/AudioUnitSDK" \
+          -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build VST3
+      run: cmake --build build --config Release --target rygo_sampler -j4
+
+    - name: Build AU
+      run: cmake --build build --config Release --target rygo_sampler_au -j4
+      continue-on-error: true
+
+    - name: Stage Mac release
+      run: |
+        mkdir -p release_mac
+        # VST3
+        cp -r build/VST3/Release/rygo_sampler.vst3 release_mac/ 2>/dev/null || true
+        # AU component (may be in different places depending on build)
+        find build -name "rygo_sampler.component" -type d \
+          -exec cp -r {} release_mac/ \; 2>/dev/null || true
+        # Installer and samples
+        cp rygo_plugin/install_mac.command release_mac/
+        chmod +x release_mac/install_mac.command
+        cp -r rygo_plugin/Samples release_mac/ 2>/dev/null || true
+        # Zip
+        cd release_mac && zip -r ../rygo_sampler_mac.zip . && cd ..
+        echo "Contents:" && ls release_mac/
+
+    - name: Upload Mac artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rygo_sampler_mac
+        path: rygo_sampler_mac.zip
+        retention-days: 30
+
+    - name: Add Mac zip to Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: "Rygo Sampler — Latest Build"
+        body: |
+          **Windows:** распакуй zip → двойной клик `install.bat` → перезапусти DAW  
+          **Mac:** распакуй zip → двойной клик `install_mac.command` → перезапусти DAW
+        prerelease: false
+        files: rygo_sampler_mac.zip
