@@ -24,3 +24,5 @@
 #define stringCompanyName "ZHRI Records\0"
 #define stringCompanyWeb "https://example.com/\0"
 #define stringCompanyEmail "info@example.com\0"
+#define stringLegalCopyright "\251 2026 ZHRI Records\0"
+#define stringLegalTrademarks "VST is a trademark of Steinberg Media Technologies GmbH\0"
