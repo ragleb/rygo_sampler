@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rygo Sampler editor — 520 x 240 logical, 1x bitmaps -->
+<vstgui-ui-description version="1">
+
+  <fonts>
+    <font name="labelFont" font-name="Helvetica Neue" size="10" bold="false" italic="false"/>
+  </fonts>
+
+  <colors>
+    <color name="textMain"   rgba="#dcdcdcff"/>
+    <color name="displayBg"  rgba="#1c1c1cee"/>
+    <color name="displayFrm" rgba="#555555ff"/>
+  </colors>
+
+  <bitmaps>
+    <bitmap name="background"   path="background.jpg"/>
+    <bitmap name="knob_img"     path="knob_strip.png"/>
+    <bitmap name="gate_oneshot" path="gate_oneshot_1x.png"/>
+  </bitmaps>
+
+  <control-tags>
+    <control-tag name="Attack"       tag="100"/>
+    <control-tag name="Decay"        tag="101"/>
+    <control-tag name="Release"      tag="103"/>
+    <control-tag name="Cutoff"       tag="104"/>
+    <control-tag name="Resonance"    tag="105"/>
+    <control-tag name="ReverbWet"    tag="106"/>
+    <control-tag name="ReverbSize"   tag="107"/>
+    <control-tag name="PlaybackMode" tag="108"/>
+    <control-tag name="Gain"         tag="109"/>
+  </control-tags>
+
+  <!-- ── editor ──────────────────────────────────────────────── -->
+  <template name="editor"
+            class="CViewContainer"
+            origin="0, 0" size="520, 240"
+            bitmap="background"
+            mouse-enabled="true" transparent="false">
+
+    <!-- Knob row: 7 knobs aligned to label spots on background -->
+    <!-- CAnimKnob: height-of-one-image=46, 64-frame filmstrip   -->
+
+    <!-- Attack (100): x-center≈45 -->
+    <view class="CParamDisplay"
+          origin="12, 18" size="46, 13"
+          control-tag="Attack"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="22, 32" size="46, 46"
+          control-tag="Attack"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="0"
+          wants-focus="false"
+          />
+
+    <!-- Decay (101): x-center≈90, +5px right -->
+    <view class="CParamDisplay"
+          origin="62, 18" size="46, 13"
+          control-tag="Decay"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="72, 32" size="46, 46"
+          control-tag="Decay"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="1"
+          wants-focus="false"
+          />
+
+    <!-- Release (103): x-center≈140, +5px right -->
+    <view class="CParamDisplay"
+          origin="112, 18" size="46, 13"
+          control-tag="Release"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="122, 32" size="46, 46"
+          control-tag="Release"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="0"
+          wants-focus="false"
+          />
+
+    <!-- Cutoff (104): +13px right total -->
+    <view class="CParamDisplay"
+          origin="188, 18" size="46, 13"
+          control-tag="Cutoff"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="198, 32" size="46, 46"
+          control-tag="Cutoff"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="1"
+          wants-focus="false"
+          />
+
+    <!-- Resonance (105): +17px right total -->
+    <view class="CParamDisplay"
+          origin="262, 18" size="46, 13"
+          control-tag="Resonance"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="272, 32" size="46, 46"
+          control-tag="Resonance"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="0"
+          wants-focus="false"
+          />
+
+    <!-- ReverbWet (106): x-center≈293, +75px right -->
+    <view class="CParamDisplay"
+          origin="335, 18" size="46, 13"
+          control-tag="ReverbWet"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="345, 32" size="46, 46"
+          control-tag="ReverbWet"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="0"
+          wants-focus="false"
+          />
+
+    <!-- ReverbSize (107): x-center≈340, +100px right -->
+    <view class="CParamDisplay"
+          origin="407, 18" size="46, 13"
+          control-tag="ReverbSize"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="417, 32" size="46, 46"
+          control-tag="ReverbSize"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="0"
+          wants-focus="false"
+          />
+
+    <!-- Gain (109): lower-left, +10px down total -->
+    <view class="CParamDisplay"
+          origin="11, 145" size="46, 13"
+          control-tag="Gain"
+          font="labelFont" font-color="textMain"
+          back-color="displayBg"
+          frame-color="displayFrm"
+          h-align="center" frame-width="1"/>
+    <view class="CAnimKnob"
+          origin="21, 157" size="46, 46"
+          control-tag="Gain"
+          bitmap="knob_img"
+          height-of-one-image="46"
+          default-value="0.5"
+          wants-focus="false"
+          />
+
+    <!-- Gate / One Shot toggle (108)
+         gate_oneshot_1x.png: 93×76 (2 frames of 93×38)
+         COnOffButton: top half = Gate (value=0), bottom half = One Shot (value=1) -->
+    <view class="COnOffButton"
+          origin="223, 154" size="93, 38"
+          control-tag="PlaybackMode"
+          bitmap="gate_oneshot"
+          default-value="0"
+          />
+
+  </template>
+
+</vstgui-ui-description>
