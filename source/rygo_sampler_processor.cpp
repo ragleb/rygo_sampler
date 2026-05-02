@@ -111,6 +111,23 @@ std::vector<std::string> buildSampleSearchPaths ()
 		addPath (joinPath (homePath, "Library/Application Support/ZHRI/Samples"));
 	}
 
+#if SMTG_OS_WINDOWS
+	// Windows uses USERPROFILE instead of HOME
+	if (const char* userProfile = std::getenv ("USERPROFILE"))
+	{
+		std::string up (userProfile);
+		addPath (joinPath (up, "Documents\\Rygo\\Samples"));
+		addPath (joinPath (up, "Documents/Rygo/Samples"));
+		addPath (joinPath (up, "Music\\Rygo\\Samples"));
+	}
+	// Also check common program data locations
+	if (const char* appData = std::getenv ("APPDATA"))
+	{
+		addPath (joinPath (std::string (appData), "Rygo\\Samples"));
+	}
+	addPath ("C:\\ProgramData\\Rygo\\Samples");
+#endif
+
 	addPath ("/Library/Application Support/Rygo/Samples");
 	addPath ("/Library/Application Support/ZHRI/Samples");
 
