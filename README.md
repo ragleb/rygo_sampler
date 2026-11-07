@@ -87,6 +87,6 @@ Sounds for the samples produced by the digestive system of Stanislav Gavrilov (a
 
 Recording Engineer — Oleg Novikov
 
-Recordings cut and prepared, and everything built into the plugin, by gleb.ragalevi.ch
+Recordings cut and prepared, and everything built into the plugin, by [gleb.ragalevi.ch](https://gleb.ragalevi.ch)
 
 ZHRI Records (ЖРИ Records) — for art's sake.
