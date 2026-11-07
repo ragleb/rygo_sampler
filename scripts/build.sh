@@ -1,5 +1,5 @@
 #!/bin/bash
-# Собирает плагин для Apple Silicon и Intel и устанавливает его в систему.
+# Builds the plugin for Apple Silicon and Intel and installs it on this Mac.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

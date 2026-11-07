@@ -226,13 +226,13 @@ int makeArt (const juce::File& artDir, const juce::File& guideDir)
     {
         juce::SharedResourcePointer<ArtStore> art;
 
-        list << ru ("# Что нарисовать для «Рыгостанции»\n\n")
-             << ru ("Все файлы лежат в папке `art/`. Замени заглушку своим рисунком с тем же именем, запусти `scripts/update_art.sh` и заново открой окно плагина: пересобирать ничего не нужно.\n\n")
-             << ru ("- Формат: PNG с прозрачным фоном.\n")
-             << ru ("- Имена файлов менять нельзя. Текст надписей менять можно, плагин видит только имя файла. В списке он на английском, стилизованные элементы можешь рисовать на кириллице.\n")
-             << ru ("- Размер холста рекомендованный. Другие пропорции тоже подойдут: плагин впишет рисунок в отведённое место, не растягивая его.\n")
-             << ru ("- Оставляй небольшие поля по краям холста.\n")
-             << ru ("- Где что находится, показывает `art_guide/layout_template.png`. Удобно рисовать поверх него слоем.\n\n");
+        list << "# What to draw for Rygostancija\n\n"
+             << "All the files live in the `art/` folder. Replace a placeholder with your drawing under the same name, run `scripts/update_art.sh` and reopen the plugin window: no rebuild is needed.\n\n"
+             << "- Format: PNG with a transparent background.\n"
+             << "- Don't change the file names. You can change the wording of a label, since the plugin only sees the file name. The list gives it in English; stylized elements can be drawn in Cyrillic.\n"
+             << "- The canvas size is a recommendation. Other proportions work too: the plugin fits the drawing into its place without stretching it.\n"
+             << "- Leave small margins at the edges of the canvas.\n"
+             << "- `art_guide/layout_template.png` shows where everything goes. It's handy to draw over it on a layer.\n\n";
 
         for (const auto& group : getArtManifest())
         {
@@ -262,10 +262,10 @@ int makeArt (const juce::File& artDir, const juce::File& guideDir)
             list << "\n";
         }
 
-        list << ru ("## Шрифт (по желанию)\n\n")
-             << ru ("Числа на крутилках, названия нот и пресетов меняются прямо в работе, поэтому заранее их не нарисовать. Они набираются шрифтом. ")
-             << ru ("Если хочешь рукописный, положи его как `art/font.ttf`: нужны латиница, цифры и знаки `. , - + / # %`. Без этого файла используется системный шрифт.\n\n")
-             << ru ("Клавиатуру и волну рисует сам плагин, рисовать их не нужно.\n");
+        list << "## Font (optional)\n\n"
+             << "The numbers on the knobs and the names of notes and presets change while the plugin runs, so they can't be drawn in advance. They are set in a font. "
+             << "If you want a handwritten one, put it at `art/font.ttf`: it needs Latin letters, digits and the characters `. , - + / # %`. Without this file, the system font is used.\n\n"
+             << "The plugin draws the keyboard and the waveform itself, so there's no need to draw them.\n";
     }
 
     if (! guideDir.getChildFile ("ART_LIST.md").replaceWithText (list))

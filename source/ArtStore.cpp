@@ -89,33 +89,33 @@ const std::vector<ArtGroup>& getArtManifest()
 {
     static const std::vector<ArtGroup> groups
     {
-        { ru ("Логотипы"), ru ("Самое заметное в плагине: рисуй крупно и свободно."),
+        { "Logos", "The most visible part of the plugin: draw them large and freely.",
           {
               { "logo_rygostancija", "RYGOSTANCIJA", 1600, 336 },
               { "logo_zhri",         "ZHRI Records",  680, 256 },
           } },
 
-        { ru ("Фон"), ru ("Картон уже стоит: это твоя текстура, файл art/background.jpg. Рисовать нужно только второй слой: линии маркером поверх картона, с прозрачным фоном. Сейчас в нём простые рамки-заглушки. Под панелью MUSIC и под волной оставь светлую подложку: там текст меняется во время работы, а на блике от скотча он читается хуже."),
+        { "Background", "The cardboard is already in place: it's your texture, the file art/background.jpg. You only need to draw the second layer: marker lines over the cardboard, with a transparent background. The placeholder version has simple frames. Leave a lighter backing under the MUSIC panel and the waveform: the text there changes while the plugin runs, and it's harder to read over the glare from the tape.",
           {
-              { "panel_lines", ru ("Рамки, узоры и разделители маркером"), 2360, 1520 },
+              { "panel_lines", "Marker frames, patterns and dividers", 2360, 1520 },
           } },
 
-        { ru ("Крутилка"), ru ("Один рисунок на все крутилки. Центр вращения совпадает с центром холста, рисуй ровно по центру."),
+        { "Knob", "One drawing for all the knobs. The center of rotation is the center of the canvas, so draw exactly in the center.",
           {
-              { "knob_base",    ru ("Корпус крутилки (неподвижный)"),                 256, 256 },
-              { "knob_pointer", ru ("Указатель, смотрит строго вверх (вращает плагин)"), 256, 256 },
+              { "knob_base",    "Knob body (stays still)",                 256, 256 },
+              { "knob_pointer", "Pointer, facing straight up (the plugin rotates it)", 256, 256 },
           } },
 
-        { ru ("Элементы управления"), ru ("Индикаторы и пометки выбранного. mark_selected растягивается под размер подписи."),
+        { "Controls", "Indicators and selection marks. mark_selected stretches to the size of its label.",
           {
-              { "led_on",        ru ("Индикатор: включено"),  64, 64 },
-              { "led_off",       ru ("Индикатор: выключено"), 64, 64 },
-              { "mark_selected", ru ("Обводка или подчёркивание выбранного варианта"), 400, 120 },
-              { "arrow_prev",    ru ("Стрелка влево"),  96, 96 },
-              { "arrow_next",    ru ("Стрелка вправо"), 96, 96 },
+              { "led_on",        "Indicator: on",  64, 64 },
+              { "led_off",       "Indicator: off", 64, 64 },
+              { "mark_selected", "Outline or underline for the selected option", 400, 120 },
+              { "arrow_prev",    "Left arrow",  96, 96 },
+              { "arrow_next",    "Right arrow", 96, 96 },
           } },
 
-        { ru ("Заголовки блоков"), ru ("Подписи крупных блоков."),
+        { "Section titles", "The labels of the large sections.",
           {
               { "title_presets",  "PRESET",   400, 80 },
               { "title_fx",       "EFFECTS",  400, 80 },
@@ -130,7 +130,7 @@ const std::vector<ArtGroup>& getArtManifest()
               { "title_reverb",   "REVERB",   400, 80 },
           } },
 
-        { ru ("Подписи крутилок"), ru ("Самые мелкие надписи: на экране они высотой примерно 16 точек, поэтому рисуй разборчиво и жирно."),
+        { "Knob labels", "The smallest lettering: about 16 points tall on screen, so draw it legibly and boldly.",
           {
               { "label_attack",       "ATTACK",   248, 64 },
               { "label_decay",        "DECAY",    248, 64 },
@@ -159,7 +159,7 @@ const std::vector<ArtGroup>& getArtManifest()
               { "label_reverb_damp",    "DAMP",     248, 64 },
           } },
 
-        { ru ("Режимы и кнопки"), ru ("Варианты, которые видны сразу."),
+        { "Modes and buttons", "Options that are visible all the time.",
           {
               { "opt_oneshot",     "ONE SHOT",     320, 72 },
               { "opt_gate",        "GATE",         220, 72 },
@@ -174,10 +174,10 @@ const std::vector<ArtGroup>& getArtManifest()
               { "hint_short",      "SHORT",        400, 72 },
           } },
 
-        { "Music", ru ("Панель слева. Замочек рисуй в обоих вариантах на одном месте холста, чтобы при переключении он не прыгал."),
+        { "Music", "The panel on the left. Draw both versions of the lock in the same place on the canvas, so it doesn't jump when it switches.",
           {
-              { "lock_open",       ru ("Замочек открыт: выбор семпла"),   320, 320 },
-              { "lock_closed",     ru ("Замочек закрыт: семпл на всех клавишах"), 320, 320 },
+              { "lock_open",       "Lock open: choosing a sample",   320, 320 },
+              { "lock_closed",     "Lock closed: the sample is on every key", 320, 320 },
               { "label_lock",      "SAMPLE LOCK",  640, 80 },
               { "label_sample",    "SAMPLE",       640, 68 },
               { "label_root",      "ROOT",         640, 68 },

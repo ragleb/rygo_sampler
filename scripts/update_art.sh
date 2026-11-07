@@ -1,6 +1,6 @@
 #!/bin/bash
-# Кладёт рисунки из папки art/ в уже установленный плагин. Пересобирать ничего не нужно:
-# запусти этот файл и заново открой окно плагина. Если Logic держит старые картинки, перезапусти его.
+# Puts the drawings from the art/ folder into the installed plugin. No rebuild is needed:
+# run this file and reopen the plugin window. If Logic holds on to the old pictures, restart it.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,15 +11,15 @@ for bundle in "$HOME/Library/Audio/Plug-Ins/Components/Rygostancija.component" \
     if [ -d "$bundle" ]; then
         rm -rf "$bundle/Contents/Resources/Art"
         cp -R "$ROOT/art" "$bundle/Contents/Resources/Art"
-        # Метки Finder и пометки о скачивании на рисунках не дают codesign подписать плагин.
+        # Finder tags and download marks on the drawings stop codesign from signing the plugin.
         xattr -cr "$bundle/Contents/Resources/Art"
         codesign --force --deep --sign - "$bundle"
-        echo "Обновлено: $bundle"
+        echo "Updated: $bundle"
         updated=$((updated + 1))
     fi
 done
 
 if [ "$updated" -eq 0 ]; then
-    echo "Плагин не установлен. Сначала запусти scripts/build.sh"
+    echo "The plugin isn't installed. Run scripts/build.sh first"
     exit 1
 fi
