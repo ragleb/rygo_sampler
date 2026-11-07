@@ -38,5 +38,6 @@ Close the Sample Lock: that sample is now on every key, in tune, starting from i
 Open the lock to go back to choosing.
 EOF
 
-ditto -c -k --keepParent "$STAGE" "$STAGE.zip"
+# No "._" sidecar files: an unzip tool other than Finder would leave them inside the bundles and break the signature.
+ditto -c -k --norsrc --noextattr --keepParent "$STAGE" "$STAGE.zip"
 ls -la "$STAGE.zip"
