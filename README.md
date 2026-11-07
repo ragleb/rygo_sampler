@@ -1,49 +1,55 @@
-# Рыгостанция (Rygostancija)
+# Rygostancija
 
-Плагин-сэмплер ЖРИ Records (ZHRI Records) для Logic Pro и REAPER: форматы AU и VST3 на macOS, Apple Silicon и Intel. VST3 для 64-битной Windows собирается через GitHub Actions.
+A free sampler plugin by ZHRI Records (ЖРИ Records) for Logic Pro, REAPER and other hosts: AU and VST3 on macOS (Apple Silicon and Intel), VST3 on 64-bit Windows.
 
-## Где что лежит
+## Download
 
-| Папка | Что внутри |
+Get the latest version from [Releases](https://github.com/ragleb/rygo_sampler/releases/latest). Each archive contains an installer and a read-me file.
+
+The plugin has no paid code signing certificate yet, so macOS and Windows show a warning during installation. The read-me file explains how to get past it.
+
+## Where things live
+
+| Folder | What's inside |
 |---|---|
-| `factory_samples/` | Семплы плагина. Новый файл здесь сам встанет на клавиатуру по своей длине после пересборки |
-| `art/` | Весь внешний вид: твои PNG заменяют заглушки |
-| `art_guide/` | `ART_LIST.md` со списком того, что нарисовать, и `layout_template.png` с расположением |
-| `source/` | Код плагина |
-| `tests/` | Проверки движка и загрузки плагина |
-| `scripts/` | Сборка, установка и упаковка |
+| `factory_samples/` | The plugin's samples. After a rebuild, a new file here takes its place on the keyboard according to its length |
+| `art/` | The plugin's entire look. PNG files with the same names replace what's here |
+| `art_guide/` | `ART_LIST.md` lists everything to draw, and `layout_template.png` shows where it goes |
+| `source/` | The plugin's code |
+| `tests/` | Checks of the engine and of loading the plugin |
+| `scripts/` | Building, installing and packaging |
 
-## Заменить рисунки
+## Replace the art on a Mac
 
-Положи файлы с теми же именами в `art/` и запусти:
+Put files with the same names into `art/` and run:
 
 ```bash
 scripts/update_art.sh
 ```
 
-Затем заново открой окно плагина. Пересобирать ничего не нужно.
+Then reopen the plugin window. No rebuild is needed.
 
-## Собрать и установить
+## Build and install on a Mac
 
-Нужны Xcode и CMake. Если JUCE нет в `third_party/JUCE`, CMake скачает его сам.
+You need Xcode and CMake. If JUCE isn't in `third_party/JUCE`, CMake downloads it.
 
 ```bash
 scripts/build.sh
 ```
 
-## Собрать архив для раздачи
+## Package for Mac
 
 ```bash
 scripts/package_mac.sh
 ```
 
-Архив появится в `dist/`. Сейчас плагин подписан без сертификата Developer ID, поэтому при установке macOS покажет предупреждение. Как его обойти, написано в архиве.
+The archive appears in `dist/`. The plugin is signed without a Developer ID certificate, so macOS shows a warning during installation. The archive explains how to get past it.
 
-## Собрать для Windows
+## Build for Windows
 
-Сборку запускает `.github/workflows/build.yml`: после каждого пуша в `main` или кнопкой Run workflow на GitHub. На Mac версию для Windows собрать нельзя. Готовый `Rygostancija-<версия>-windows.zip` лежит в артефактах запуска 30 дней. Внутри плагин, `install.bat` и `README.txt`.
+`.github/workflows/build.yml` runs the build after every push to `main`, or when you click Run workflow on GitHub. The Windows version can't be built on a Mac. The finished `Rygostancija-<version>-windows.zip` stays in the run's artifacts for 30 days. It contains the plugin, `install.bat` and `README.txt`.
 
-## Проверки
+## Tests
 
 ```bash
 cmake -S . -B build-dev -G Ninja -DCMAKE_BUILD_TYPE=Release -DRYGO_UNIVERSAL=OFF
@@ -57,7 +63,7 @@ cmake --build build-dev --target RygoTests
 RYGO_FACTORY_SAMPLES="$PWD/factory_samples" RYGO_ART_DIR="$PWD/art" build-dev/RygoTests_artefacts/Release/RygoTests
 ```
 
-Загрузка установленного плагина через настоящие обёртки (нужна цель `RygoHostCheck`) и через системный API Apple:
+Load the installed plugin through the real wrappers (this needs the `RygoHostCheck` target) and through Apple's system API:
 
 ```bash
 build/RygoHostCheck_artefacts/Release/RygoHostCheck ~/Library/Audio/Plug-Ins/Components/Rygostancija.component
@@ -71,6 +77,6 @@ build/RygoHostCheck_artefacts/Release/RygoHostCheck ~/Library/Audio/Plug-Ins/VST
 swift tests/au_render_check.swift
 ```
 
-## Лицензия JUCE
+## JUCE licence
 
-Плагин собран на JUCE 9, который распространяется по AGPLv3 или по коммерческой лицензии. Бесплатный тариф Starter действует, пока доход или финансирование меньше $20 000 за последние 12 месяцев. Для компании считается весь её доход из любых источников, а для частного лица доход от связанной с JUCE деятельности, включая донаты. При превышении порога нужна платная лицензия. Условия: https://juce.com/legal/juce-9-licence/
+The plugin is built on JUCE 9, which is available under AGPLv3 or a commercial licence. The free Starter tier applies while revenue or funding stays under $20,000 over the last 12 months. For a company, that counts all its income from any source. For an individual, it counts income from JUCE-related activity, including donations. Above that limit, a paid licence is required. Terms: https://juce.com/legal/juce-9-licence/
