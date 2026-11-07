@@ -99,7 +99,9 @@ foreach(format AU VST3 Standalone)
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${RYGO_ART_DIR}" "$<TARGET_FILE_DIR:${plugin_target}>/../Resources/Art"
         VERBATIM)
     if(APPLE)
+        # Finder tags and download marks on the art would make codesign refuse the bundle.
         add_custom_command(TARGET ${plugin_target} POST_BUILD
+            COMMAND /usr/bin/xattr -cr "$<TARGET_FILE_DIR:${plugin_target}>/../.."
             COMMAND /usr/bin/codesign --force --deep --sign - "$<TARGET_FILE_DIR:${plugin_target}>/../.."
             VERBATIM)
     endif()

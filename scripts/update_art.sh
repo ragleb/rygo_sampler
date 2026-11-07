@@ -11,7 +11,9 @@ for bundle in "$HOME/Library/Audio/Plug-Ins/Components/Rygostancija.component" \
     if [ -d "$bundle" ]; then
         rm -rf "$bundle/Contents/Resources/Art"
         cp -R "$ROOT/art" "$bundle/Contents/Resources/Art"
-        codesign --force --deep --sign - "$bundle" 2>/dev/null
+        # Метки Finder и пометки о скачивании на рисунках не дают codesign подписать плагин.
+        xattr -cr "$bundle/Contents/Resources/Art"
+        codesign --force --deep --sign - "$bundle"
         echo "Обновлено: $bundle"
         updated=$((updated + 1))
     fi
