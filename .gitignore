@@ -1,4 +1,7 @@
-build/
-*.vst3
-*.component
+build*/
+dist/
+third_party/JUCE/
 .DS_Store
+*.user
+.vscode/
+.idea/

@@ -1,0 +1,7 @@
+# cmd.exe misreads batch files without CRLF line endings, whatever system they were edited on.
+*.bat text eol=crlf
+scripts/readme_windows.txt text eol=crlf
+
+*.flac binary
+*.jpg binary
+*.png binary

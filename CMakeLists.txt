@@ -1,173 +1,125 @@
-set(target rygo_sampler)
+cmake_minimum_required(VERSION 3.22)
 
-# Ensure OBJCXX is enabled for the AU wrapper .mm files
-if(SMTG_MAC)
-    enable_language(OBJCXX)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version")
+# Static runtime: the plugin has to load on a PC without the Visual C++ Redistributable.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+option(RYGO_UNIVERSAL "Build for both Apple Silicon and Intel" ON)
+option(RYGO_BUILD_TESTS "Build the engine tests and the plugin host check" ON)
+
+if(APPLE AND RYGO_UNIVERSAL)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
 endif()
 
-smtg_add_vst3plugin(${target}
-    source/rygo_sampler_entry.cpp
-    source/rygo_sampler_processor.cpp
-    source/rygo_sampler_processor.h
-    source/rygo_sampler_controller.cpp
-    source/rygo_sampler_controller.h
-    source/rygo_sampler_ids.h
-    source/version.h
-)
+project(Rygostancija VERSION 1.0.0 LANGUAGES C CXX)
 
-smtg_target_setup_as_vst3_example(${target})
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-target_link_libraries(${target}
-    PRIVATE
-        sdk
-        vstgui_support
-)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/JUCE/CMakeLists.txt")
+    add_subdirectory(third_party/JUCE)
+else()
+    include(FetchContent)
+    FetchContent_Declare(JUCE
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG 9.0.5
+        GIT_SHALLOW ON)
+    FetchContent_MakeAvailable(JUCE)
+endif()
 
-smtg_target_add_plugin_resources(${target}
-    RESOURCES
-        resource/rygo_editor.uidesc
-        resource/background.png
-        resource/background.jpg
-        resource/knob_strip.png
-        resource/gate_oneshot_1x.png
-)
+set(RYGO_SOURCES
+    source/ArtStore.cpp
+    source/Parameters.cpp
+    source/SampleLibrary.cpp
+    source/SamplerEngine.cpp
+    source/FxChain.cpp
+    source/PluginProcessor.cpp
+    source/PluginEditor.cpp
+    source/UiComponents.cpp)
 
-if(SMTG_MAC)
-    if(XCODE AND SMTG_ENABLE_AUV2_BUILDS)
-        include(SMTG_AddVST3AuV2)
-        smtg_target_add_auv2(rygo_sampler_au
-            BUNDLE_NAME rygo_sampler
-            BUNDLE_IDENTIFIER com.zhri.rygosampler.audiounit.v101
-            INFO_PLIST_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/resource/au-info.plist
-            VST3_PLUGIN_TARGET ${target}
-        )
-
-        add_dependencies(rygo_sampler_au ${target})
-
-        set(rygo_component_resources "$<TARGET_BUNDLE_CONTENT_DIR:rygo_sampler_au>/Resources")
-        set(rygo_vst3_bundle "${CMAKE_BINARY_DIR}/VST3/$<CONFIG>/rygo_sampler.vst3")
-
-        add_custom_command(TARGET rygo_sampler_au POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${rygo_component_resources}"
-            COMMAND ${CMAKE_COMMAND} -E remove_directory "${rygo_component_resources}/plugin.vst3"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${rygo_vst3_bundle}" "${rygo_component_resources}/plugin.vst3"
-            COMMAND /usr/bin/codesign --force --deep --sign - "$<TARGET_BUNDLE_DIR:rygo_sampler_au>"
-        )
-    elseif(SMTG_ENABLE_AUV2_BUILDS)
-        set(rygo_au_sources
-            ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/aucocoaview.mm
-            ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/aucocoaview.h
-            ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/auwrapper.mm
-            ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/auwrapper.h
-            ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/NSDataIBStream.mm
-            ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/NSDataIBStream.h
-        )
-
-        string(RANDOM LENGTH 16 ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" RYGO_COCOA_ID)
-        set(rygo_generated_dir "${CMAKE_CURRENT_BINARY_DIR}/au")
-        file(MAKE_DIRECTORY "${rygo_generated_dir}")
-        file(WRITE "${rygo_generated_dir}/aucocoaclassprefix.h"
-            "#define SMTG_AUCocoaUIBase_CLASS_NAME SMTG_AUCocoaUIBase_${RYGO_COCOA_ID}\n")
-
-        add_library(rygo_sampler_au MODULE
-            ${rygo_au_sources}
-        )
-
-        target_compile_features(rygo_sampler_au
-            PUBLIC
-                cxx_std_20
-        )
-
-        target_compile_definitions(rygo_sampler_au
-            PRIVATE
-                SMTG_AUCocoaUIBase_CLASS_NAME=SMTG_AUCocoaUIBase_${RYGO_COCOA_ID}
-                CA_USE_AUDIO_PLUGIN_ONLY=0
-                SMTG_AUWRAPPER_USES_AUSDK=1
-        )
-
-        target_include_directories(rygo_sampler_au
-            PRIVATE
-                "${rygo_generated_dir}"
-                "${public_sdk_SOURCE_DIR}/source/vst/auwrapper"
-        )
-
-        target_link_libraries(rygo_sampler_au
-            PRIVATE
-                sdk_hosting
-                "-framework AudioUnit"
-                "-framework CoreMIDI"
-                "-framework AudioToolbox"
-                "-framework CoreFoundation"
-                "-framework Carbon"
-                "-framework Cocoa"
-                "-framework CoreAudio"
-        )
-
-        if(NOT "${SMTG_COREAUDIO_SDK_PATH}" STREQUAL "")
-            if(EXISTS "${SMTG_COREAUDIO_SDK_PATH}/AudioUnits")
-                target_sources(rygo_sampler_au
-                    PRIVATE
-                        ${public_sdk_SOURCE_DIR}/source/vst/auwrapper/ausdk.mm
-                )
-                target_include_directories(rygo_sampler_au
-                    PRIVATE
-                        "${SMTG_COREAUDIO_SDK_PATH}"
-                        "${SMTG_COREAUDIO_SDK_PATH}/AudioUnits"
-                        "${SMTG_COREAUDIO_SDK_PATH}/AudioUnits/AUPublic"
-                        "${SMTG_COREAUDIO_SDK_PATH}/AudioUnits/AUPublic/OtherBases"
-                        "${SMTG_COREAUDIO_SDK_PATH}/AudioUnits/AUPublic/Utility"
-                )
-            elseif(EXISTS "${SMTG_COREAUDIO_SDK_PATH}/src/AudioUnitSDK")
-                file(GLOB RYGO_AU_SDK_SOURCES "${SMTG_COREAUDIO_SDK_PATH}/src/AudioUnitSDK/*.cpp")
-                target_sources(rygo_sampler_au
-                    PRIVATE
-                        ${RYGO_AU_SDK_SOURCES}
-                )
-                target_include_directories(rygo_sampler_au
-                    PRIVATE
-                        "${SMTG_COREAUDIO_SDK_PATH}/include"
-                )
-            endif()
-        endif()
-
-        set(rygo_component_output_dir "${CMAKE_BINARY_DIR}/AudioUnit/$<CONFIG>")
-        set(rygo_component_resources "$<TARGET_BUNDLE_CONTENT_DIR:rygo_sampler_au>/Resources")
-        set(rygo_vst3_bundle "${CMAKE_BINARY_DIR}/VST3/$<CONFIG>/rygo_sampler.vst3")
-
-        set_target_properties(rygo_sampler_au
-            PROPERTIES
-                PREFIX ""
-                OUTPUT_NAME rygo_sampler
-                BUNDLE TRUE
-                MACOSX_BUNDLE TRUE
-                BUNDLE_EXTENSION component
-                MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resource/au-info.plist
-                LIBRARY_OUTPUT_DIRECTORY "${rygo_component_output_dir}"
-        )
-
-        add_dependencies(rygo_sampler_au ${target})
-
-        add_custom_command(TARGET rygo_sampler_au POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${rygo_component_resources}"
-            COMMAND ${CMAKE_COMMAND} -E remove_directory "${rygo_component_resources}/plugin.vst3"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${rygo_vst3_bundle}" "${rygo_component_resources}/plugin.vst3"
-            COMMAND /usr/bin/codesign --force --deep --sign - "$<TARGET_BUNDLE_DIR:rygo_sampler_au>"
-        )
+function(rygo_configure target)
+    target_sources(${target} PRIVATE ${RYGO_SOURCES})
+    target_include_directories(${target} PRIVATE source)
+    target_compile_definitions(${target} PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_DISPLAY_SPLASH_SCREEN=0
+        JUCE_USE_FLAC=1
+        JUCE_USE_OGGVORBIS=1
+        JUCE_USE_MP3AUDIOFORMAT=0)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /utf-8)
     endif()
+    target_link_libraries(${target}
+        PRIVATE
+            juce::juce_audio_utils
+            juce::juce_audio_formats
+            juce::juce_dsp
+        PUBLIC
+            juce::juce_recommended_config_flags
+            juce::juce_recommended_warning_flags)
+endfunction()
 
-    if(SMTG_ENABLE_AUV2_BUILDS)
-        add_custom_target(install_rygo_sampler_au_user
-            # Always re-embed the latest VST3 so changing only the plugin sources
-            # (processor/controller) doesn't require touching auwrapper.mm to trigger a copy.
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${rygo_component_resources}"
-            COMMAND ${CMAKE_COMMAND} -E remove_directory "${rygo_component_resources}/plugin.vst3"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${rygo_vst3_bundle}" "${rygo_component_resources}/plugin.vst3"
-            COMMAND /usr/bin/codesign --force --deep --sign - "$<TARGET_BUNDLE_DIR:rygo_sampler_au>"
-            # Install
-            COMMAND ${CMAKE_COMMAND} -E make_directory "$ENV{HOME}/Library/Audio/Plug-Ins/Components"
-            COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/Library/Audio/Plug-Ins/Components/rygo_sampler.component"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_BUNDLE_DIR:rygo_sampler_au>" "$ENV{HOME}/Library/Audio/Plug-Ins/Components/rygo_sampler.component"
-            DEPENDS rygo_sampler_au
-        )
+juce_add_plugin(Rygostancija
+    PRODUCT_NAME "Rygostancija"
+    COMPANY_NAME "ZHRI Records"
+    DESCRIPTION "Sample instrument with built-in effects"
+    BUNDLE_ID "com.zhrirecords.rygostancija"
+    PLUGIN_MANUFACTURER_CODE ZHRI
+    PLUGIN_CODE Rygo
+    FORMATS AU VST3 Standalone
+    IS_SYNTH TRUE
+    NEEDS_MIDI_INPUT TRUE
+    NEEDS_MIDI_OUTPUT FALSE
+    IS_MIDI_EFFECT FALSE
+    # Without this flag the VST3 wrapper makes the editor ignore key presses on
+    # macOS, and numeric values could not be typed into the knobs.
+    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+    VST3_CATEGORIES Instrument Sampler
+    AU_MAIN_TYPE kAudioUnitType_MusicDevice
+    COPY_PLUGIN_AFTER_BUILD FALSE)
+
+rygo_configure(Rygostancija)
+
+# Factory banks and the art live inside every plugin bundle, so installing the
+# plugin is all a user has to do: the samples can never go missing.
+set(RYGO_FACTORY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/factory_samples")
+set(RYGO_ART_DIR "${CMAKE_CURRENT_SOURCE_DIR}/art")
+foreach(format AU VST3 Standalone)
+    set(plugin_target Rygostancija_${format})
+    # JUCE creates only the formats a platform supports: there is no AU target on Windows.
+    if(NOT TARGET ${plugin_target})
+        continue()
     endif()
+    add_custom_command(TARGET ${plugin_target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_FILE_DIR:${plugin_target}>/../Resources/Samples"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${RYGO_FACTORY_DIR}" "$<TARGET_FILE_DIR:${plugin_target}>/../Resources/Samples"
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_FILE_DIR:${plugin_target}>/../Resources/Art"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${RYGO_ART_DIR}" "$<TARGET_FILE_DIR:${plugin_target}>/../Resources/Art"
+        VERBATIM)
+    if(APPLE)
+        add_custom_command(TARGET ${plugin_target} POST_BUILD
+            COMMAND /usr/bin/codesign --force --deep --sign - "$<TARGET_FILE_DIR:${plugin_target}>/../.."
+            VERBATIM)
+    endif()
+endforeach()
+
+if(RYGO_BUILD_TESTS)
+    juce_add_console_app(RygoTests PRODUCT_NAME "RygoTests")
+    rygo_configure(RygoTests)
+    target_sources(RygoTests PRIVATE tests/RygoTests.cpp tests/ArtGenerator.cpp)
+    target_compile_definitions(RygoTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+
+    juce_add_console_app(RygoHostCheck PRODUCT_NAME "RygoHostCheck")
+    target_sources(RygoHostCheck PRIVATE tests/RygoHostCheck.cpp)
+    target_compile_definitions(RygoHostCheck PRIVATE
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_MODAL_LOOPS_PERMITTED=1
+        JUCE_PLUGINHOST_AU=1
+        JUCE_PLUGINHOST_VST3=1)
+    target_link_libraries(RygoHostCheck PRIVATE
+        juce::juce_audio_utils
+        juce::juce_recommended_config_flags)
 endif()
