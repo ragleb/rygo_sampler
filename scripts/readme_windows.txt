@@ -20,3 +20,9 @@ Music mode
 Turn on MUSIC, then play a key or pick a sample from the list.
 Close the Sample Lock: that sample is now on every key, in tune, starting from its root note.
 Open the lock to go back to choosing.
+
+Credits
+Sounds for the samples produced by the digestive system of Stanislav Gavrilov (a.k.a. РЫГОСТАН)
+Recording Engineer — Oleg Novikov
+Recordings cut and prepared, and everything built into the plugin, by gleb.ragalevi.ch
+ZHRI Records (ЖРИ Records) — for art's sake.

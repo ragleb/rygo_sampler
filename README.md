@@ -80,3 +80,13 @@ swift tests/au_render_check.swift
 ## JUCE licence
 
 The plugin is built on JUCE 9, which is available under AGPLv3 or a commercial licence. The free Starter tier applies while revenue or funding stays under $20,000 over the last 12 months. For a company, that counts all its income from any source. For an individual, it counts income from JUCE-related activity, including donations. Above that limit, a paid licence is required. Terms: https://juce.com/legal/juce-9-licence/
+
+## Credits
+
+Sounds for the samples produced by the digestive system of Stanislav Gavrilov (a.k.a. РЫГОСТАН)
+
+Recording Engineer — Oleg Novikov
+
+Recordings cut and prepared, and everything built into the plugin, by gleb.ragalevi.ch
+
+ZHRI Records (ЖРИ Records) — for art's sake.
